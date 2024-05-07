@@ -3,8 +3,8 @@ import random
 from FourRooms import FourRooms
 from matplotlib import pyplot as plt
 
-# Initialize the FourRooms environment for Scenario 1 (Simple Package Collection)
-fourRoomsObj = FourRooms('simple')
+# Initialize the FourRooms environment for Scenario 2 (Multiple Package Collection)
+fourRoomsObj = FourRooms('multi')
 
 # Parameters for Q-learning
 epsilon = 0.1  # Exploration rate
@@ -21,9 +21,9 @@ def get_state_index(position):
     x, y = position
     return (x - 1) * 11 + (y - 1)  # Adjusting for zero indexing
 
-# Main function for Q-learning in Scenario 1
+# Main function for Q-learning in Scenario 2
 def main():
-    num_epochs = 500
+    num_epochs = 1000
     for epoch in range(num_epochs):
         # Start a new epoch
         fourRoomsObj.newEpoch()
@@ -31,7 +31,8 @@ def main():
         # Get the initial position of the agent
         current_pos = fourRoomsObj.getPosition()
         state_index = get_state_index(current_pos)
-        
+        initial_packages_remaining = fourRoomsObj.getPackagesRemaining()
+
         while not fourRoomsObj.isTerminal():
             # Choose an action based on epsilon-greedy policy
             if random.random() < epsilon:
@@ -44,7 +45,8 @@ def main():
             new_state_index = get_state_index(new_pos)
 
             # Compute the reward
-            reward = 10 if packages_remaining == 0 else -0.01  # Only one package, reward once collected
+            reward = 10 if packages_remaining < initial_packages_remaining else -0.01
+            initial_packages_remaining = packages_remaining  # Update remaining packages
 
             # Update Q-table using the Q-learning formula
             Q[state_index, action] += alpha * (reward + gamma * np.max(Q[new_state_index]) - Q[state_index, action])
@@ -60,7 +62,7 @@ def main():
         print(f"Epoch {epoch + 1}/{num_epochs} completed.")
 
     # After training, show the final path taken by the agent
-    fourRoomsObj.showPath(-1, savefig='final_path_scenario1.png')
+    fourRoomsObj.showPath(-1, savefig='final_path_scenario2.png')
 
 if __name__ == "__main__":
     main()
